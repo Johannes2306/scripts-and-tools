@@ -6,7 +6,7 @@ import sys
 # Define the callback functions for various MQTT events
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
-        print(f"Connected to MQTT broker at [{args.broker_ip}]")
+        print("Connected to MQTT broker")
         # Automatically subscribe to the specified topics or all topics if none specified
         if args.topics:
             for topic in args.topics:
@@ -14,17 +14,15 @@ def on_connect(client, userdata, flags, rc):
         else:
             client.subscribe("#")
     else:
-        print(f"Connection to MQTT broker failed with result code {rc}")
+        print(f"Connection to MQTT broker failed with result code {rc}: {mqtt.connack_string(rc)}")
         sys.exit()
-
 
 def on_disconnect(client, userdata, rc):
-    if rc != 0:
-        print(
-            f"Unexpected disconnection from MQTT broker with result code {rc}")
-        sys.exit()
-    else:
+    if rc == mqtt.MQTT_ERR_SUCCESS:
         print("Disconnected from MQTT broker")
+    else:
+        print(f"Unexpected disconnection from MQTT broker with result code {rc}: {mqtt.error_string(rc)}")
+        sys.exit()
 
 
 def on_message(client, userdata, message):
